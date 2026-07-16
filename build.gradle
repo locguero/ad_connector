@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    // Applied without repackaging (bootJar disabled below): enables `gradlew bootRun`
+    // for browsing Swagger UI while `gradlew jar` still produces a plain library jar.
+    id 'org.springframework.boot' version '3.5.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example.iam'
+version = '1.0.0-SNAPSHOT'
+description = 'Active Directory provisioning/deprovisioning connector module (multi-domain, LDAPS)'
+
+ext {
+    unboundidVersion = '7.0.2'
+    resilience4jVersion = '2.2.0'
+    springdocVersion = '2.8.9'
+    logstashLogbackVersion = '8.1'
+}
+
+// Match Maven's <java.version>17</java.version> (compiled for 17, runs on any newer JDK).
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // Used directly by AdOperationTimer (version managed by the Boot BOM).
+    implementation 'io.micrometer:micrometer-core'
+    implementation "com.unboundid:unboundid-ldapsdk:${unboundidVersion}"
+    implementation "io.github.resilience4j:resilience4j-retry:${resilience4jVersion}"
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    // Optional: only needed when the json-logs profile is active. Host apps
+    // wanting JSON output must declare it themselves (see README).
+    runtimeOnly "net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+// Library module: publish/build a plain jar, not a repackaged Boot fat jar.
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

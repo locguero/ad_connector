@@ -89,7 +89,7 @@ documented with springdoc-openapi:
 - **Swagger UI:** `http://localhost:8080/swagger-ui.html`
 - **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
 
-Run standalone with `mvn spring-boot:run` (connection pools are lazy, so the
+Run standalone with `./gradlew bootRun` (connection pools are lazy, so the
 API is browsable without reachable domain controllers). Endpoints are rooted
 at `/api/ad/{domain}/...` where `{domain}` is `qa-ent`, `dev-ent`, or `ad-ent`.
 Objects are addressed by `sAMAccountName` by default; pass
@@ -129,7 +129,7 @@ Default output is Spring Boot's standard console pattern. Activating the
 (an *optional* dependency of this module):
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=json-logs
+./gradlew bootRun --args='--spring.profiles.active=json-logs'
 ```
 
 Connector logs pass user/group/domain as discrete arguments, which the
@@ -182,8 +182,8 @@ are additionally captured by Spring Boot's standard `http.server.requests`.
 ## Build & test
 
 ```bash
-mvn test        # unit tests (GUID codec, UAC bitmask, operation timer)
-mvn package     # plain jar (library module — no Spring Boot repackaging)
+./gradlew test        # unit tests (GUID codec, UAC bitmask, operation timer)
+./gradlew build       # plain jar (library module — no Spring Boot repackaging)
 ```
 
 ## Notes / possible next steps
