@@ -1,0 +1,73 @@
+# Sample configuration for the AD connector module.
+# All secrets arrive via environment variables / mounted secret files —
+# nothing sensitive lives in this file.
+spring:
+  application:
+    name: ad-connector
+
+ad-connector:
+  default-group-deactivation-mode: STRIP_MEMBERSHIP
+  domains:
+    qa-ent:
+      host: ${AD_QA_HOST:qa-dc01.qa-ent.example.com}
+      port: 636                    # LDAPS (set use-start-tls: true + port 389 for STARTTLS)
+      base-dn: ${AD_QA_BASE_DN:DC=qa-ent,DC=example,DC=com}
+      bind-dn: ${AD_QA_BIND_DN:CN=svc-iam,OU=ServiceAccounts,DC=qa-ent,DC=example,DC=com}
+      bind-password: ${AD_QA_BIND_PASSWORD:}
+      quarantine-ou: ${AD_QA_QUARANTINE_OU:OU=Quarantine,DC=qa-ent,DC=example,DC=com}
+      truststore:
+        path: ${AD_QA_TRUSTSTORE_PATH:/etc/secrets/ad/qa-ent-truststore.p12}
+        password: ${AD_QA_TRUSTSTORE_PASSWORD:}
+        type: PKCS12
+      pool:
+        initial-connections: 2
+        max-connections: 10
+        health-check-interval-millis: 60000
+        connect-timeout-millis: 5000
+        response-timeout-millis: 10000
+    dev-ent:
+      host: ${AD_DEV_HOST:dev-dc01.dev-ent.example.com}
+      port: 636
+      base-dn: ${AD_DEV_BASE_DN:DC=dev-ent,DC=example,DC=com}
+      bind-dn: ${AD_DEV_BIND_DN:CN=svc-iam,OU=ServiceAccounts,DC=dev-ent,DC=example,DC=com}
+      bind-password: ${AD_DEV_BIND_PASSWORD:}
+      quarantine-ou: ${AD_DEV_QUARANTINE_OU:OU=Quarantine,DC=dev-ent,DC=example,DC=com}
+      truststore:
+        path: ${AD_DEV_TRUSTSTORE_PATH:/etc/secrets/ad/dev-ent-truststore.p12}
+        password: ${AD_DEV_TRUSTSTORE_PASSWORD:}
+        type: PKCS12
+    ad-ent:
+      host: ${AD_PROD_HOST:dc01.ad-ent.example.com}
+      port: 636
+      base-dn: ${AD_PROD_BASE_DN:DC=ad-ent,DC=example,DC=com}
+      bind-dn: ${AD_PROD_BIND_DN:CN=svc-iam,OU=ServiceAccounts,DC=ad-ent,DC=example,DC=com}
+      bind-password: ${AD_PROD_BIND_PASSWORD:}
+      quarantine-ou: ${AD_PROD_QUARANTINE_OU:OU=Quarantine,DC=ad-ent,DC=example,DC=com}
+      truststore:
+        path: ${AD_PROD_TRUSTSTORE_PATH:/etc/secrets/ad/ad-ent-truststore.jks}
+        password: ${AD_PROD_TRUSTSTORE_PASSWORD:}
+        type: JKS
+      pool:
+        initial-connections: 4
+        max-connections: 20
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+logging:
+  level:
+    com.example.iam.ad: INFO

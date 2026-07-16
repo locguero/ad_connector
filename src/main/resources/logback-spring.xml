@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A host application's own logback-spring.xml (on its classpath) takes
+     precedence over this file, so importing the connector never hijacks the
+     host's logging configuration. -->
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <springProfile name="!json-logs">
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+  <!-- Requires logstash-logback-encoder on the classpath (optional dependency
+       of this module — host apps must declare it themselves). Discrete log
+       arguments (user/group/domain) are emitted as arg0..argN JSON fields. -->
+  <springProfile name="json-logs">
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <includeNonStructuredArguments>true</includeNonStructuredArguments>
+      </encoder>
+    </appender>
+    <root level="INFO">
+      <appender-ref ref="JSON_CONSOLE"/>
+    </root>
+  </springProfile>
+</configuration>
